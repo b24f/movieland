@@ -1,5 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux'
 
+import { moviesApi } from '../data/moviesSlice'
+
 import Modal from './Modal'
 import YoutubePlayer from './YoutubePlayer'
 
@@ -7,7 +9,9 @@ import starredSlice from '../data/starredSlice'
 import watchLaterSlice from '../data/watchLaterSlice'
 import placeholder from '../assets/not-found-500X750.jpeg'
 
-const Movie = ({ movie, viewTrailer, closeCard, videoKey }) => {
+const Movie = ({ movie, closeCard }) => {
+    // TODO: Handle errors and loading state
+    const [trigger, { data: trailerKey, error, isLoading, isError }] = moviesApi.endpoints.getTrailerKeyByMovieId.useLazyQuery();
 
     const state = useSelector((state) => state)
     const { starred, watchLater } = state
@@ -22,6 +26,8 @@ const Movie = ({ movie, viewTrailer, closeCard, videoKey }) => {
         if (e.stopPropagation) e.stopPropagation()
         e.target.parentElement.parentElement.classList.remove('opened')
     }
+
+    const onModalOpen = () => trigger(movie.id);
 
     return (
         <div className="card" onClick={(e) => e.currentTarget.classList.add('opened')} >
@@ -62,10 +68,10 @@ const Movie = ({ movie, viewTrailer, closeCard, videoKey }) => {
                     )}
 
                     <Modal
-                        onOpen={() => viewTrailer(movie)}
+                        onOpen={onModalOpen}
                         TriggerComponent={<button type="button" className="btn btn-dark">View Trailer</button>}
                     >
-                        <YoutubePlayer videoKey={videoKey} />
+                        <YoutubePlayer videoKey={trailerKey} />
                     </Modal>
                 </div>
                 <img className="center-block" src={(movie.poster_path) ? `https://image.tmdb.org/t/p/w500/${movie.poster_path}` : placeholder} alt="Movie poster" />

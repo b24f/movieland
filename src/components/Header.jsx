@@ -3,9 +3,10 @@ import { useSelector } from 'react-redux'
 
 import '../styles/header.scss'
 
-const Header = ({ searchMovies }) => {
-  
+const Header = () => {
   const { starredMovies } = useSelector((state) => state.starred)
+  
+  const searchMovies = () => {};
 
   return (
     <header>
