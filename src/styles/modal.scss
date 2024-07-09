@@ -1,0 +1,26 @@
+.popup-content {
+    padding: 0;
+    border: unset;
+}
+
+.popup-modal {
+    font-size: 12px;
+}
+
+.popup-modal > .content {
+    width: 100%;
+}
+  
+.popup-modal > .close {
+    cursor: pointer;
+    position: absolute;
+    display: block;
+    line-height: 20px;
+    right: -10px;
+    top: -10px;
+    font-size: 24px;
+    background: #ffffff;
+    border-radius: 18px;
+    border: 1px solid #cfcece;
+    padding: 0;
+}

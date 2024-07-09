@@ -1,9 +1,13 @@
 import { useDispatch, useSelector } from 'react-redux'
+
+import Modal from './Modal'
+import YoutubePlayer from './YoutubePlayer'
+
 import starredSlice from '../data/starredSlice'
 import watchLaterSlice from '../data/watchLaterSlice'
 import placeholder from '../assets/not-found-500X750.jpeg'
 
-const Movie = ({ movie, viewTrailer, closeCard }) => {
+const Movie = ({ movie, viewTrailer, closeCard, videoKey }) => {
 
     const state = useSelector((state) => state)
     const { starred, watchLater } = state
@@ -26,6 +30,7 @@ const Movie = ({ movie, viewTrailer, closeCard }) => {
                 <div className="info_panel">
                     <div className="overview">{movie.overview}</div>
                     <div className="year">{movie.release_date?.substring(0, 4)}</div>
+                    
                     {!starred.starredMovies.map(movie => movie.id).includes(movie.id) ? (
                         <span className="btn-star" data-testid="starred-link" onClick={() => 
                             dispatch(starMovie({
@@ -43,6 +48,7 @@ const Movie = ({ movie, viewTrailer, closeCard }) => {
                             <i className="bi bi-star-fill" data-testid="star-fill" />
                         </span>
                     )}
+
                     {!watchLater.watchLaterMovies.map(movie => movie.id).includes(movie.id) ? (
                         <button type="button" data-testid="watch-later" className="btn btn-light btn-watch-later" onClick={() => dispatch(addToWatchLater({
                                 id: movie.id, 
@@ -54,7 +60,13 @@ const Movie = ({ movie, viewTrailer, closeCard }) => {
                     ) : (
                         <button type="button" data-testid="remove-watch-later" className="btn btn-light btn-watch-later blue" onClick={() => dispatch(removeFromWatchLater(movie))}><i className="bi bi-check"></i></button>
                     )}
-                    <button type="button" className="btn btn-dark" onClick={() => viewTrailer(movie)}>View Trailer</button>                                                
+
+                    <Modal
+                        onOpen={() => viewTrailer(movie)}
+                        TriggerComponent={<button type="button" className="btn btn-dark">View Trailer</button>}
+                    >
+                        <YoutubePlayer videoKey={videoKey} />
+                    </Modal>
                 </div>
                 <img className="center-block" src={(movie.poster_path) ? `https://image.tmdb.org/t/p/w500/${movie.poster_path}` : placeholder} alt="Movie poster" />
             </div>
