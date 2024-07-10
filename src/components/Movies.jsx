@@ -4,7 +4,7 @@ import '../styles/movies.scss'
 const Movies = ({ movies, closeCard }) => {
     return (
         <div data-testid="movies" className="movie-cards-container">
-            {movies.results?.map((movie) => {
+            {movies?.map((movie) => {
                 return (
                     <Movie 
                         movie={movie} 

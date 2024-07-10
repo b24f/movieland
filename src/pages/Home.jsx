@@ -19,7 +19,8 @@ function Home() {
     
     return (
         <div>
-            {isLoading ? <p>Loading...</p> :  <Movies movies={result} />}
+            {/* TODO: change response to remove result.results */}
+            {isLoading ? <p>Loading...</p> :  <Movies movies={result.results} />}
             <div ref={ref} style={{ height: 100 }}>
                 {entry?.isIntersecting ? <p>...Loading</p> : null}
             </div>
