@@ -19,7 +19,7 @@ export const useDebounce = (value, delay = 500) => {
     return debouncedValue;
 };
 
-export const useMovies = () => {
+export const useMovies = ({ page }) => {
     const [searchParams] = useSearchParams();
     const searchQuery = searchParams.get('search') || '';
 
@@ -27,7 +27,7 @@ export const useMovies = () => {
         data: moviesAll,
         isLoading: isLoadingAll,
         isError: isErrorAll,
-    } = useGetMoviesQuery();
+    } = useGetMoviesQuery({ page });
 
     const {
         data: searchResults,

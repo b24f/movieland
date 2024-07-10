@@ -1,21 +1,22 @@
-import { createAsyncThunk, createSlice, createEntityAdapter } from "@reduxjs/toolkit"
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { API_KEY } from '../constants'
 
-// TODO: Normalize result
-
-// const moviesAdapter = createEntityAdapter({
-//     sortComparer: (a, b) => a.name.localeCompare(b.name),
-// })
-
+// TODO: Normalize result (createEntityAdapter)
 export const moviesApi = createApi({
     reducerPath: 'moviesApi',
     baseQuery: fetchBaseQuery({ baseUrl: 'https://api.themoviedb.org/3' }),
     endpoints: builder => ({
         getMovies: builder.query({
-            query: (page = 1) => `/discover/movie?sort_by=vote_count.desc&page=${page}&api_key=${API_KEY}`,
+            query: ({ page = 1 }) => `/discover/movie?sort_by=vote_count.desc&page=${page}&api_key=${API_KEY}`,
+            serializeQueryArgs: ({ endpointName }) => endpointName,
+            merge: (cache, response) => ({
+                ...response,
+                results: [...(cache.results || []), ...(response.results || [])],
+            }),
+            forceRefetch: ({ currentArg, previousArg })  => currentArg !== previousArg,
         }),
         searchMoviesByText: builder.query({
             query: ({ text }) => `/search/movie?query=${text}&api_key=${API_KEY}`,
