@@ -32,6 +32,7 @@ const Header = () => {
     }
   };
 
+  // TODO: Remove search query when navigating to Watch Later and Starred
   useEffect(() => {
     if (debouncedSearchText) {
       setSearchParams(createSearchParams({ search: debouncedSearchText }));
