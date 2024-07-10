@@ -86,9 +86,9 @@ const App = () => {
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
-            {/* <Route path="/starred" element={<Starred viewTrailer={viewTrailer} />} />
-            <Route path="/watch-later" element={<WatchLater viewTrailer={viewTrailer} />} />
-            <Route path="*" element={<h1 className="not-found">Page Not Found</h1>} /> */}
+            <Route path="/starred" element={<Starred />} />
+            <Route path="/watch-later" element={<WatchLater />} />
+            <Route path="*" element={<h1 className="not-found">Page Not Found</h1>} />
           </Route>
         </Routes>
     </BrowserRouter>

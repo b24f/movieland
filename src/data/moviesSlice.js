@@ -6,7 +6,7 @@ import { API_KEY } from '../constants'
 
 // TODO: Normalize result
 
-// const moviesAdapter = createEntityAdapter<Post>({
+// const moviesAdapter = createEntityAdapter({
 //     sortComparer: (a, b) => a.name.localeCompare(b.name),
 // })
 
@@ -18,7 +18,7 @@ export const moviesApi = createApi({
             query: (page = 1) => `/discover/movie?sort_by=vote_count.desc&page=${page}&api_key=${API_KEY}`,
         }),
         searchMoviesByText: builder.query({
-            query: text => `/search/movie?query=${text}&api_key=${API_KEY}`,
+            query: ({ text }) => `/search/movie?query=${text}&api_key=${API_KEY}`,
         }),
         getMovieById: builder.query({
             query: id => `/movie/${id}?append_to_response=videos&api_key=${API_KEY}`,
@@ -31,8 +31,8 @@ export const moviesApi = createApi({
                     response.videos.results[0];
                 
                 return key;
-            }
-        })
+            },
+        }),
     }),
 });
 
