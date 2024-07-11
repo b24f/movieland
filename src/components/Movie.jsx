@@ -4,12 +4,14 @@ import { moviesApi } from '../data/moviesSlice'
 
 import Modal from './Modal'
 import YoutubePlayer from './YoutubePlayer'
+import Button from './Button'
 
 import starredSlice from '../data/starredSlice'
 import watchLaterSlice from '../data/watchLaterSlice'
 import placeholder from '../assets/not-found-500X750.jpeg'
 
 const Movie = ({ movie, closeCard }) => {
+    const dispatch = useDispatch();
     // TODO: Handle errors and loading state
     const [trigger, { data: trailerKey, error, isLoading, isError }] = moviesApi.endpoints.getTrailerKeyByMovieId.useLazyQuery();
 
@@ -17,9 +19,10 @@ const Movie = ({ movie, closeCard }) => {
     const { starred, watchLater } = state
     const { starMovie, unstarMovie } = starredSlice.actions
     const { addToWatchLater, removeFromWatchLater } = watchLaterSlice.actions
+    
+    const { id: movieId } = movie;
 
-    const dispatch = useDispatch()
-
+    // TODO: toggle class with local state value
     const myClickHandler = (e) => {
         if (!e) var e = window.event
         e.cancelBubble = true
@@ -29,6 +32,39 @@ const Movie = ({ movie, closeCard }) => {
 
     const onModalOpen = () => trigger(movie.id);
 
+    // TODO: move to selector
+    const isStarred = starred.starredMovies.findIndex(({ id }) => id === movieId) > -1;
+    const isWatchLater = watchLater.watchLaterMovies.findIndex(({ id }) => id === movieId) > -1;
+    
+    const toggleStarred = () => {
+        if (isStarred) {
+            dispatch(unstarMovie(movie));
+        } else {
+            // TODO: remove repeating code
+            dispatch(starMovie({
+                id: movie.id, 
+                overview: movie.overview, 
+                release_date: movie.release_date?.substring(0, 4),
+                poster_path: movie.poster_path,
+                title: movie.title
+            }));
+        }
+    }
+
+    const toggleWatchLater = () => {
+        if (isWatchLater) {
+            dispatch(removeFromWatchLater(movie));
+        } else {
+            dispatch(addToWatchLater({
+                id: movie.id, 
+                overview: movie.overview, 
+                release_date: movie.release_date?.substring(0, 4),
+                poster_path: movie.poster_path,
+                title: movie.title
+            }));
+        }
+    }
+
     return (
         <div className="card" onClick={(e) => e.currentTarget.classList.add('opened')} >
             <div className="card-body text-center">
@@ -36,36 +72,25 @@ const Movie = ({ movie, closeCard }) => {
                 <div className="info_panel">
                     <div className="overview">{movie.overview}</div>
                     <div className="year">{movie.release_date?.substring(0, 4)}</div>
-                    
-                    {!starred.starredMovies.map(movie => movie.id).includes(movie.id) ? (
-                        <span className="btn-star" data-testid="starred-link" onClick={() => 
-                            dispatch(starMovie({
-                                id: movie.id, 
-                                overview: movie.overview, 
-                                release_date: movie.release_date?.substring(0, 4),
-                                poster_path: movie.poster_path,
-                                title: movie.title
-                            })
-                        )}>
-                            <i className="bi bi-star" />
-                        </span>
-                    ) : (
-                        <span className="btn-star" data-testid="unstar-link" onClick={() => dispatch(unstarMovie(movie))}>
-                            <i className="bi bi-star-fill" data-testid="star-fill" />
-                        </span>
-                    )}
 
-                    {!watchLater.watchLaterMovies.map(movie => movie.id).includes(movie.id) ? (
-                        <button type="button" data-testid="watch-later" className="btn btn-light btn-watch-later" onClick={() => dispatch(addToWatchLater({
-                                id: movie.id, 
-                                overview: movie.overview, 
-                                release_date: movie.release_date?.substring(0, 4),
-                                poster_path: movie.poster_path,
-                                title: movie.title
-                        }))}>Watch Later</button>
-                    ) : (
-                        <button type="button" data-testid="remove-watch-later" className="btn btn-light btn-watch-later blue" onClick={() => dispatch(removeFromWatchLater(movie))}><i className="bi bi-check"></i></button>
-                    )}
+                    <Button
+                        classNames="btn-star"
+                        testId={isStarred ? "unstar-link" : "starred-link"}
+                        onClick={toggleStarred}
+                    >
+                        <i
+                            className={"bi" + ' ' + (isStarred ? 'bi-star-fill' : 'bi-star')}
+                            data-testid={isStarred ? "star-fill" : null}
+                        />
+                    </Button>
+
+                    <Button
+                        classNames={"btn btn-light btn-watch-later" + " " + (isWatchLater ? 'blue' : '')}
+                        testId={isWatchLater ? "remove-watch-later" : 'watch-later'}
+                        onClick={toggleWatchLater}
+                    >
+                        {isWatchLater ? <i className="bi bi-check"></i> : <span>Watch Later</span>}
+                    </Button>
 
                     <Modal
                         onOpen={onModalOpen}

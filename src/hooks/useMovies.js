@@ -7,24 +7,28 @@ export const useMovies = ({ page }) => {
     const searchQuery = searchParams.get('search') || '';
 
     const {
-        data: moviesAll,
+        data: dataAll,
         isLoading: isLoadingAll,
         isError: isErrorAll,
+        isFetching: isFetchingAll,
     } = useGetMoviesQuery({ page });
 
     const {
-        data: searchResults,
+        data: dataSearch,
         isLoading: isLoadingSearch,
         isError: isErrorSearch,
+        isFetching: isFetchingSearch,
     } = useSearchMoviesByTextQuery({ text: searchQuery }, { skip: !searchQuery });
 
-    const result = searchQuery ? searchResults : moviesAll;
+    const result = searchQuery ? dataSearch : dataAll;
     const isLoading = isLoadingAll || isLoadingSearch;
     const isError = isErrorAll || isErrorSearch;
+    const isFetching = isFetchingAll || isFetchingSearch;
 
     return {
         result,
         isLoading,
         isError,
+        isFetching,
     };
 };

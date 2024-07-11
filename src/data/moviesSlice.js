@@ -12,11 +12,19 @@ export const moviesApi = createApi({
         getMovies: builder.query({
             query: ({ page = 1 }) => `/discover/movie?sort_by=vote_count.desc&page=${page}&api_key=${API_KEY}`,
             serializeQueryArgs: ({ endpointName }) => endpointName,
-            merge: (cache, response) => ({
-                ...response,
-                results: [...(cache.results || []), ...(response.results || [])],
-            }),
-            forceRefetch: ({ currentArg, previousArg })  => currentArg !== previousArg,
+            merge: (cache, response) => {
+                const { page } = response;
+                
+                if (page === 1) return response;
+                
+                return {
+                    ...response,
+                    results: [...(cache.results || []), ...(response.results || [])],
+                }
+            },
+            forceRefetch: ({ currentArg, previousArg })  => {
+                return currentArg.page !== previousArg?.page
+            },
         }),
         searchMoviesByText: builder.query({
             query: ({ text }) => `/search/movie?query=${text}&api_key=${API_KEY}`,

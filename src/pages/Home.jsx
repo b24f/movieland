@@ -2,18 +2,11 @@ import { useState, useEffect } from 'react';
 
 import Movies from '../components/Movies';
 
-import { useMovies, useIntersectionObserver } from '../hooks';
+import { useMovies, useInfiniteScroll } from '../hooks';
 
 function Home() {
-    const [page, setPage] = useState(1);
-    const [ref, entry] = useIntersectionObserver();
-    const { result, isLoading, isError } = useMovies({ page });
-
-    useEffect(() => {
-        if (entry?.isIntersecting) {
-            setPage(prevPage => prevPage + 1) 
-        }
-    }, [entry?.isIntersecting]);
+    const [ref, isIntersecting, pageNumber] = useInfiniteScroll();
+    const { result, isLoading, isError, isFetching } = useMovies({ page: pageNumber });
 
     // TODO: Handle errors, loading state and last page
     
@@ -22,7 +15,7 @@ function Home() {
             {/* TODO: change response to remove result.results */}
             {isLoading ? <p>Loading...</p> :  <Movies movies={result.results} />}
             <div ref={ref} style={{ height: 100 }}>
-                {entry?.isIntersecting ? <p>...Loading</p> : null}
+                {isIntersecting ? <p>Loading...</p> : null}
             </div>
         </div>
     )

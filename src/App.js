@@ -5,7 +5,7 @@ import Home from './pages/Home'
 import Starred from './pages/Starred'
 import WatchLater from './pages/WatchLater'
 
-import MainLayout from './components/MainLayout'
+import MainLayout from './layouts/MainLayout'
 
 import './app.scss'
 

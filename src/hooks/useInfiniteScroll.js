@@ -1,9 +1,10 @@
-import { useRef, useCallback, useState } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 
-export const useIntersectionObserver = (options = {}) => {
+export const useInfiniteScroll = (options = {}) => {
     const { threshold = 0 } = options;
 
-    const [entry, setEntry] = useState(null);
+    const [isIntersecting, setIsIntersecting] = useState(null);
+    const [pageNumber, setPageNumber] = useState(1);
 
     const observer = useRef(null);
 
@@ -16,7 +17,7 @@ export const useIntersectionObserver = (options = {}) => {
         if (node?.nodeType === Node.ELEMENT_NODE) {
             const currentObserver = new IntersectionObserver(
                 ([entry]) => {
-                    setEntry(entry);
+                    setIsIntersecting(entry.isIntersecting);
                 },
                 { threshold }
             )
@@ -25,5 +26,11 @@ export const useIntersectionObserver = (options = {}) => {
         }
     }, [threshold]);
 
-    return [customRef, entry];
-}
+    useEffect(() => {
+        if (isIntersecting) {
+            setPageNumber(prevPageNumber => prevPageNumber + 1);
+        }
+    }, [isIntersecting]);
+
+    return [customRef, isIntersecting, pageNumber];
+};
