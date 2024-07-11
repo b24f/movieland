@@ -1,36 +1,56 @@
-import moviesSlice, { fetchMovies } from '../data/moviesSlice'
-import { moviesMock } from './movies.mocks'
+import { renderHook, waitFor } from '@testing-library/react';
+import { Provider } from 'react-redux'
+// import fetchMock from 'jest-fetch-mock';
 
-describe('MovieSlice test', () => {
-    
-    it('should set loading true while action is pending', () => {
-        const action = {type: fetchMovies.pending};
-        const initialState = moviesSlice.reducer(
-        { 
-            movies: [], fetchStatus: '',
-        }, action);
-        expect(action).toEqual({type: fetchMovies.pending})
-     })
+import store from '../data/store';
 
-    it('should return payload when action is fulfilled', () => {
-        const action = {
-            type: fetchMovies.fulfilled, 
-            payload: moviesMock
-        };
-        const initialState = moviesSlice.reducer(
-        { 
-            movies: [], fetchStatus: '',
-        }, action);
-        expect(action.payload).toBeTruthy()
-    })
+import { useGetMoviesQuery } from '../data/moviesSlice'
 
-    it('should set error when action is rejected', () => {
-        const action = {type: fetchMovies.rejected};
-        const initialState = moviesSlice.reducer(
-        { 
-            movies: [], fetchStatus: '',
-        }, action);
-        expect(action).toEqual({type: fetchMovies.rejected})
-     })
+import { API_KEY } from '../constants';
 
-})
+function wrapper({ children }) {
+    return <Provider store={store}>{children}</Provider>;
+};
+
+// beforeEach(() => {
+//     fetchMock.resetMocks();
+// });
+
+describe('useGetMoviesQuery', () => {
+    const data = {};
+    const page = 1;
+
+    // beforeEach(() => {
+    //     fetchMock.mockOnceIf(`https://api.themoviedb.org/3/discover/movie?sort_by=vote_count.desc&page=${page}&api_key=${API_KEY}`, () =>
+    //         Promise.resolve({
+    //             status: 200,
+    //             body: JSON.stringify({ data }),
+    //         })
+    //     );
+    // });
+
+    it('renders hook', async () => {
+        const { result } = renderHook(() => useGetMoviesQuery({ page }), { wrapper });
+
+        expect(result.current).toMatchObject({
+            status: 'pending',
+            isLoading: true,
+            isSuccess: false,
+            isError: false,
+            isFetching: true,
+        });
+      
+        //   await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        //   expect(fetchMock).toBeCalledTimes(1);
+      
+        // expect(result.current).toMatchObject({
+        //     status: 'fulfilled',
+        //     data,
+        //     isLoading: false,
+        //     isSuccess: true,
+        //     isError: false,
+        //     currentData: data,
+        //     isFetching: false,
+        // });
+    });
+});
