@@ -32,7 +32,6 @@ const Header = () => {
     }
   };
 
-  // TODO: Remove search query when navigating to Watch Later and Starred
   useEffect(() => {
     if (debouncedSearchText) {
       setSearchParams(createSearchParams({ search: debouncedSearchText }));
@@ -72,7 +71,7 @@ const Header = () => {
             className="form-control rounded" 
             placeholder="Search movies..." 
             aria-label="Search movies" 
-            aria-describedby="search-addon" 
+            aria-describedby="search-addon"
           />
       </div>      
     </header>
