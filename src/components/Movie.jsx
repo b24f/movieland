@@ -5,6 +5,8 @@ import { moviesApi } from '../data/moviesSlice'
 import Modal from './Modal'
 import YoutubePlayer from './YoutubePlayer'
 import Button from './Button'
+import Error from './Error'
+import Loader from './Loader'
 
 import starredSlice from '../data/starredSlice'
 import watchLaterSlice from '../data/watchLaterSlice'
@@ -13,7 +15,7 @@ import placeholder from '../assets/not-found-500X750.jpeg'
 const Movie = ({ movie }) => {
     const [isOpened, setIsOpened] = useState(false);
     const dispatch = useDispatch();
-    // TODO: Handle errors and loading state
+    
     const [trigger, { data: trailerKey, error, isLoading, isError }] = moviesApi.endpoints.getTrailerKeyByMovieId.useLazyQuery();
 
     const { id: movieId, overview, release_date, poster_path, title } = movie;
@@ -32,8 +34,10 @@ const Movie = ({ movie }) => {
 
     const isStarred = useSelector(state => state.starred.starredMovies.findIndex(({ id }) => id === movieId) > -1);
     const isWatchLater = useSelector(state => state.watchLater.watchLaterMovies.findIndex(({ id }) => id === movieId) > -1);
+
+    const getTrailerKey = () => trigger(movieId);
     
-    const onModalOpen = () => trigger(movieId);
+    const onModalOpen = () => getTrailerKey();
 
     const onCardClick = () => setIsOpened(!isOpened);
 
@@ -93,7 +97,30 @@ const Movie = ({ movie }) => {
                         onOpen={onModalOpen}
                         TriggerComponent={<button type="button" className="btn btn-dark">View Trailer</button>}
                     >
-                        <YoutubePlayer videoKey={trailerKey} />
+                        
+                        {!isLoading && !isError ? (
+                            <YoutubePlayer videoKey={trailerKey} />
+                        ) : (
+                            <div className="card-trailer-error-wrapper">
+                                {isLoading && (
+                                    <Loader />
+                                )}
+                                {isError && (
+                                    <Error
+                                        code={error?.status}
+                                        message={error?.data?.status_message}
+                                        customStyles={{ padding: 12 }}
+                                        ActionComponent={() => (
+                                            <button
+                                                type="button"
+                                                className="btn btn-primary btn-sm"
+                                                onClick={getTrailerKey}
+                                            >Retry</button>
+                                        )}
+                                    />
+                                )}
+                            </div>
+                        )}
                     </Modal>
                 </div>
                 <img className="center-block" src={movie.poster_path ? `https://image.tmdb.org/t/p/w500/${poster_path}` : placeholder} alt="Movie poster" />

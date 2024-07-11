@@ -9,7 +9,6 @@ export const useInfiniteScroll = (options = {}) => {
     const observer = useRef(null);
 
     const customRef = useCallback(node => {
-        console.log(observer)
         if (observer.current) {
             observer.current.disconnect();
             observer.current = null;
