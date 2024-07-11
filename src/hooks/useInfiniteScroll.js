@@ -14,7 +14,7 @@ export const useInfiniteScroll = (options = {}) => {
             observer.current = null;
         }
 
-        if (node?.nodeType === Node.ELEMENT_NODE) {
+        if (node?.nodeType === Node.ELEMENT_NODE && window.IntersectionObserver) {
             const currentObserver = new IntersectionObserver(
                 ([entry]) => {
                     setIsIntersecting(entry.isIntersecting);
