@@ -11,6 +11,7 @@ export const useMovies = ({ page }) => {
         isLoading: isLoadingAll,
         isError: isErrorAll,
         isFetching: isFetchingAll,
+        error: errorAll,
     } = useGetMoviesQuery({ page });
 
     const {
@@ -18,17 +19,20 @@ export const useMovies = ({ page }) => {
         isLoading: isLoadingSearch,
         isError: isErrorSearch,
         isFetching: isFetchingSearch,
+        error: errorSearch,
     } = useSearchMoviesByTextQuery({ text: searchQuery }, { skip: !searchQuery });
 
-    const result = searchQuery ? dataSearch : dataAll;
+    const data = searchQuery ? dataSearch : dataAll;
     const isLoading = isLoadingAll || isLoadingSearch;
     const isError = isErrorAll || isErrorSearch;
     const isFetching = isFetchingAll || isFetchingSearch;
+    const error = errorAll || errorSearch;
 
     return {
-        result,
+        data,
         isLoading,
         isError,
         isFetching,
+        error,
     };
 };

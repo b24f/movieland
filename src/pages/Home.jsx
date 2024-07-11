@@ -1,24 +1,23 @@
-import { useState, useEffect } from 'react';
-
 import Movies from '../components/Movies';
+import Error from '../components/Error';
+import Loader from '../components/Loader';
 
 import { useMovies, useInfiniteScroll } from '../hooks';
 
 function Home() {
-    const [ref, isIntersecting, pageNumber] = useInfiniteScroll();
-    const { result, isLoading, isError, isFetching } = useMovies({ page: pageNumber });
+    const { ref, pageNumber } = useInfiniteScroll();
+    const { data, isLoading, isError, error } = useMovies({ page: pageNumber });
 
-    // TODO: Handle errors, loading state and last page
+    if (isLoading) return <Loader />;
+
+    if (isError) return <Error code={error?.status} message={error?.data?.status_message} />
     
     return (
         <div>
-            {/* TODO: change response to remove result.results */}
-            {isLoading ? <p>Loading...</p> :  <Movies movies={result.results} />}
-            <div ref={ref} style={{ height: 100 }}>
-                {isIntersecting ? <p>Loading...</p> : null}
-            </div>
+            <Movies movies={data?.results} />
+            <div ref={ref} style={{ height: 100 }}></div> 
         </div>
     )
 }
 
-export default Home
+export default Home;

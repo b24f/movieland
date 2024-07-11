@@ -9,6 +9,7 @@ export const useInfiniteScroll = (options = {}) => {
     const observer = useRef(null);
 
     const customRef = useCallback(node => {
+        console.log(observer)
         if (observer.current) {
             observer.current.disconnect();
             observer.current = null;
@@ -32,5 +33,5 @@ export const useInfiniteScroll = (options = {}) => {
         }
     }, [isIntersecting]);
 
-    return [customRef, isIntersecting, pageNumber];
+    return { ref: customRef, pageNumber, isIntersecting };
 };

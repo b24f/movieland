@@ -4,6 +4,7 @@ import 'reactjs-popup/dist/index.css'
 import Home from './pages/Home'
 import Starred from './pages/Starred'
 import WatchLater from './pages/WatchLater'
+import NotFound from './pages/NotFound'
 
 import MainLayout from './layouts/MainLayout'
 
@@ -16,7 +17,7 @@ const App = () => (
             <Route path="/" element={<Home />} />
             <Route path="/starred" element={<Starred />} />
             <Route path="/watch-later" element={<WatchLater />} />
-            <Route path="*" element={<h1 className="not-found">Page Not Found</h1>} />
+            <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
     </BrowserRouter>

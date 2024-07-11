@@ -6,8 +6,8 @@ import PageLayout from '../layouts/PageLayout'
 const Starred = () => {
     const dispatch = useDispatch();
 
-    const state = useSelector((state) => state);
-    const { starred: { starredMovies } } = state;
+    const movies = useSelector((state) => state.starred.starredMovies);
+
     const { clearAllStarred } = starredSlice.actions;
 
     const clearList = () => dispatch(clearAllStarred());
@@ -17,7 +17,7 @@ const Starred = () => {
         title="Starred movies"
         containerTestId="starred"
         contentTestId="starred-movies"
-        movies={starredMovies}
+        movies={movies}
         onRemoveButtonClick={clearList}
         removeButtonLabel="Remove all starred"
         emptyListText="There are no starred movies."

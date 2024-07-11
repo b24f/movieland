@@ -6,8 +6,7 @@ import PageLayout from '../layouts/PageLayout'
 const WatchLater = () => {
     const dispatch = useDispatch()
 
-    const state = useSelector((state) => state)
-    const { watchLater: { watchLaterMovies } } = state
+    const movies = useSelector((state) => state.watchLater.watchLaterMovies)
 
     const { remveAllWatchLater } = watchLaterSlice.actions
 
@@ -18,7 +17,7 @@ const WatchLater = () => {
         title="Watch Later List"
         containerTestId="watch-later-div"
         contentTestId="watch-later-movies"
-        movies={watchLaterMovies}
+        movies={movies}
         onRemoveButtonClick={clearList}
         removeButtonLabel="Empty list"
         emptyListText="You have no movies saved to watch later."
