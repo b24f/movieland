@@ -1,16 +1,14 @@
 import Movie from './Movie'
 import '../styles/movies.scss'
 
-const Movies = ({ movies, viewTrailer, closeCard }) => {
-
+const Movies = ({ movies, closeCard }) => {
     return (
-        <div data-testid="movies">
-            {movies.movies.results?.map((movie) => {
+        <div data-testid="movies" className="movie-cards-container">
+            {movies?.map((movie) => {
                 return (
                     <Movie 
                         movie={movie} 
                         key={movie.id}
-                        viewTrailer={viewTrailer}
                         closeCard={closeCard}
                     />
                 )

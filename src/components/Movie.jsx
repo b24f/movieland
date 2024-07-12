@@ -1,71 +1,136 @@
+import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { moviesApi } from '../data/moviesSlice'
+
+import Modal from './Modal'
+import YoutubePlayer from './YoutubePlayer'
+import Button from './Button'
+import Error from './Error'
+import Loader from './Loader'
+
 import starredSlice from '../data/starredSlice'
 import watchLaterSlice from '../data/watchLaterSlice'
 import placeholder from '../assets/not-found-500X750.jpeg'
 
-const Movie = ({ movie, viewTrailer, closeCard }) => {
+const Movie = ({ movie }) => {
+    const [isOpened, setIsOpened] = useState(false);
+    const dispatch = useDispatch();
+    
+    const [trigger, { data: trailerKey, error, isLoading, isError }] = moviesApi.endpoints.getTrailerKeyByMovieId.useLazyQuery();
 
-    const state = useSelector((state) => state)
-    const { starred, watchLater } = state
+    const { id: movieId, overview, release_date, poster_path, title } = movie;
+    const releaseDate = release_date?.substring(0, 4);
+    
+    const payload = {
+        id: movieId, 
+        overview, 
+        release_date: releaseDate,
+        poster_path,
+        title,
+    };
+    
     const { starMovie, unstarMovie } = starredSlice.actions
     const { addToWatchLater, removeFromWatchLater } = watchLaterSlice.actions
 
-    const dispatch = useDispatch()
+    const isStarred = useSelector(state => state.starred.starredMovies.findIndex(({ id }) => id === movieId) > -1);
+    const isWatchLater = useSelector(state => state.watchLater.watchLaterMovies.findIndex(({ id }) => id === movieId) > -1);
 
-    const myClickHandler = (e) => {
-        if (!e) var e = window.event
-        e.cancelBubble = true
-        if (e.stopPropagation) e.stopPropagation()
-        e.target.parentElement.parentElement.classList.remove('opened')
-    }
+    const getTrailerKey = () => trigger(movieId);
+    
+    const onModalOpen = () => getTrailerKey();
+
+    const onCardClick = () => setIsOpened(!isOpened);
+
+    const onCardCloseClick = e => {
+        e.stopPropagation();
+        setIsOpened(false);
+    };
+    
+    const onStarredClick = e => {
+        e.stopPropagation();
+
+        if (isStarred) {
+            dispatch(unstarMovie(movieId));
+        } else {
+            dispatch(starMovie(payload));
+        }
+    };
+
+    const onWatchLaterClick = e => {
+        e.stopPropagation();
+
+        if (isWatchLater) {
+            dispatch(removeFromWatchLater(movieId));
+        } else {
+            dispatch(addToWatchLater(payload));
+        }
+    };
 
     return (
-        <div className="wrapper col-3 col-sm-4 col-md-3 col-lg-3 col-xl-2">
-        <div className="card" onClick={(e) => e.currentTarget.classList.add('opened')} >
+        <div className={"card" + " " + (isOpened ? "opened" : "")} onClick={onCardClick} >
             <div className="card-body text-center">
                 <div className="overlay" />
                 <div className="info_panel">
-                    <div className="overview">{movie.overview}</div>
-                    <div className="year">{movie.release_date?.substring(0, 4)}</div>
-                    {!starred.starredMovies.map(movie => movie.id).includes(movie.id) ? (
-                        <span className="btn-star" data-testid="starred-link" onClick={() => 
-                            dispatch(starMovie({
-                                id: movie.id, 
-                                overview: movie.overview, 
-                                release_date: movie.release_date?.substring(0, 4),
-                                poster_path: movie.poster_path,
-                                title: movie.title
-                            })
-                        )}>
-                            <i className="bi bi-star" />
-                        </span>
-                    ) : (
-                        <span className="btn-star" data-testid="unstar-link" onClick={() => dispatch(unstarMovie(movie))}>
-                            <i className="bi bi-star-fill" data-testid="star-fill" />
-                        </span>
-                    )}
-                    {!watchLater.watchLaterMovies.map(movie => movie.id).includes(movie.id) ? (
-                        <button type="button" data-testid="watch-later" className="btn btn-light btn-watch-later" onClick={() => dispatch(addToWatchLater({
-                                id: movie.id, 
-                                overview: movie.overview, 
-                                release_date: movie.release_date?.substring(0, 4),
-                                poster_path: movie.poster_path,
-                                title: movie.title
-                        }))}>Watch Later</button>
-                    ) : (
-                        <button type="button" data-testid="remove-watch-later" className="btn btn-light btn-watch-later blue" onClick={() => dispatch(removeFromWatchLater(movie))}><i className="bi bi-check"></i></button>
-                    )}
-                    <button type="button" className="btn btn-dark" onClick={() => viewTrailer(movie)}>View Trailer</button>                                                
+                    <div className="overview">{overview}</div>
+                    <div className="year">{releaseDate}</div>
+
+                    <Button
+                        classNames="btn-star"
+                        testId={isStarred ? "unstar-link" : "starred-link"}
+                        onClick={onStarredClick}
+                    >
+                        <i
+                            className={"bi" + ' ' + (isStarred ? 'bi-star-fill' : 'bi-star')}
+                            data-testid={isStarred ? "star-fill" : null}
+                        />
+                    </Button>
+
+                    <Button
+                        classNames={"btn btn-light btn-watch-later" + " " + (isWatchLater ? 'blue' : '')}
+                        testId={isWatchLater ? "remove-watch-later" : 'watch-later'}
+                        onClick={onWatchLaterClick}
+                    >
+                        {isWatchLater ? <i className="bi bi-check"></i> : <span>Watch Later</span>}
+                    </Button>
+
+                    <Modal
+                        onOpen={onModalOpen}
+                        TriggerComponent={<button type="button" className="btn btn-dark">View Trailer</button>}
+                    >
+                        
+                        {!isLoading && !isError ? (
+                            <YoutubePlayer videoKey={trailerKey} />
+                        ) : (
+                            <div className="card-trailer-error-wrapper">
+                                {isLoading && (
+                                    <Loader />
+                                )}
+                                {isError && (
+                                    <Error
+                                        code={error?.status}
+                                        message={error?.data?.status_message}
+                                        customStyles={{ padding: 12 }}
+                                        ActionComponent={() => (
+                                            <button
+                                                type="button"
+                                                className="btn btn-primary btn-sm"
+                                                onClick={getTrailerKey}
+                                            >Retry</button>
+                                        )}
+                                    />
+                                )}
+                            </div>
+                        )}
+                    </Modal>
                 </div>
-                <img className="center-block" src={(movie.poster_path) ? `https://image.tmdb.org/t/p/w500/${movie.poster_path}` : placeholder} alt="Movie poster" />
+                <img className="center-block" src={movie.poster_path ? `https://image.tmdb.org/t/p/w500/${poster_path}` : placeholder} alt="Movie poster" />
             </div>
-            <h6 className="title mobile-card">{movie.title}</h6>
-            <h6 className="title">{movie.title}</h6>
-            <button type="button" className="close" onClick={(e) => myClickHandler(e)} aria-label="Close">
+            <h6 className="title mobile-card">{title}</h6>
+            <h6 className="title">{title}</h6>
+            <button type="button" className="close" onClick={onCardCloseClick} aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
-        </div>
-    </div>        
+        </div>    
     )
 }
 
