@@ -6,8 +6,6 @@ import store from '../data/store';
 
 import { useGetMoviesQuery } from '../data/moviesSlice'
 
-import { API_KEY } from '../constants';
-
 function wrapper({ children }) {
     return <Provider store={store}>{children}</Provider>;
 };
